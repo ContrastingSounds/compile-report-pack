@@ -1,5 +1,5 @@
-# fast-hub
-Simple Looker Action Hub using Python + FastAPI. Includes SendGrid for emails.
+# compile-report-pack
+Single-action Looker Action Hub using Python + FastAPI. Includes SendGrid for emails.
 
 # SDK credentials must be configured as environment variables
 NOTE: This project assumes that you have set SDK credentials as environment variables.

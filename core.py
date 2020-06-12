@@ -14,8 +14,8 @@ from looker_sdk import client, sdk
 
 
 app = FastAPI(
-    title='Fast Hub',
-    description='Simple Python Action Hub for Looker, using the FastAPI library. Also uses SendGrid for emails.',
+    title='Compile Report Pack',
+    description='POC Action Hub for Looker, using the FastAPI library. Uses SendGrid for emails.',
     version='0.1.0'
 )
 

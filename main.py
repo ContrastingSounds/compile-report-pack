@@ -3,9 +3,8 @@ from core import action_hub, app
 from api_types import ActionList
 
 fast_hub_info = {
-    'info': 'Welcome to Fast Hub! The following applications have been installed. Note that these are not used directly via this webpage. Actions are accessed via the Looker Action Hub. Extensions are accessed via your Looker Browser menu.',
+    'info': 'The following applications have been installed. Note that these are not used directly via this webpage. Actions are accessed via the Looker Action Hub.',
     'actions': [],
-    'extensions': [],
 }
 
 actions_list = []

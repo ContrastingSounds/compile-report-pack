@@ -4,11 +4,11 @@ from enum import Enum
 
 
 class LookerInstance(BaseModel):
-    name: str = None
+    name: str = ''
     protocol: int = 9999
     api_port: int = 19999
-    client_id: str = None
-    client_secret: str = None
+    client_id: str = ''
+    client_secret: str = ''
 
 
 # Actions List Endpoint 
@@ -17,10 +17,10 @@ class LookerInstance(BaseModel):
 class ActionParam(BaseModel):
     name: str
     label: str
-    description: str = None
+    description: str = ''
     required: bool = False
     sensitive: bool = False
-    type: str = None
+    type: str = ''
 
 
 class RequiredField(BaseModel):
@@ -30,14 +30,14 @@ class RequiredField(BaseModel):
 
 
 class SupportedActionTypes(str, Enum):
-    Cell = "cell"
-    Query = "query"
-    Dashboard = "dashboard"
+    Cell = 'cell'
+    Query = 'query'
+    Dashboard = 'dashboard'
 
 
 class ActionSupportedDownloadSettings(str, Enum):
-    Push = "push"
-    Url = "url"
+    Push = 'push'
+    Url = 'url'
 
 
 class ActionSupportedFormats(str, Enum):
