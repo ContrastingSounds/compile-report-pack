@@ -1,8 +1,8 @@
 source .venv/bin/activate
-LOOKERSDK_BASE_URL=https://your-instance.looker.com:19999
-LOOKERSDK_CLIENT_ID=xxxx
-LOOKERSDK_CLIENT_SECRET=xxxx
-LOOKERSDK_VERIFY_SSL=True
+export LOOKERSDK_BASE_URL=https://your-instance.looker.com:19999
+export LOOKERSDK_CLIENT_ID=xxxx
+export LOOKERSDK_CLIENT_SECRET=xxxx
+export LOOKERSDK_VERIFY_SSL=True
 export FAST_HUB=https://your-web-app-url
 export SENDGRID_API_KEY=xxxxx
 export SENDGRID_FROM_EMAIL=noreply@example.com
