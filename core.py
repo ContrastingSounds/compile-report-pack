@@ -1,4 +1,5 @@
 import os
+import glob
 import traceback
 import sys
 import base64
@@ -80,6 +81,13 @@ def get_temp_dir(module: str) -> str:
         os.makedirs(os.path.join('temp', module))
     
     return os.path.join('temp', module)
+
+def clear_temp_dir(module: str) -> None:
+    dir = os.path.join('temp', module)
+    if os.path.exists(dir):
+        files = glob.glob(os.path.join(dir, '*.*'))
+        for f in files:
+            os.remove(f)
 
 def send_email(
     to_emails: Union[str, List[str]], 
