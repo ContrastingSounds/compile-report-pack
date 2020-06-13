@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.info('Custom Action Hub started')
 
+
 fast_hub_info = {
     'info': 'The following applications have been installed. Note that these are not used directly via this webpage. Actions are accessed via the Looker Action Hub.',
     'actions': [],

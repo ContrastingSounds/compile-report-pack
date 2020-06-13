@@ -18,6 +18,17 @@ import logging
 logger = logging.getLogger(__name__)
 logger.info('Compile Report Pack registered')
 
+file_log = logging.getLogger('.'.join(['file_log', __name__]))
+formatter = logging.Formatter(
+        f"[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s] - %(message)s", "%Y-%m-%d %H:%M:%S")
+handler = logging.handlers.RotatingFileHandler('output/compile_report_pack/action.log', backupCount=0)
+handler.setFormatter(formatter)
+file_log.addHandler(handler)
+file_log.setLevel(logging.DEBUG)
+file_log.propagate = False
+file_log.info('Compile Report Pack registered')
+
+
 PDF_SIZES = {
     'A3': {
         'height': 1120,
@@ -98,10 +109,10 @@ def merge_pdfs(paths, output):
             page = pdf_reader.getPage(idx)
             if USE_SCALING:
               if path[1] == 'A4':
-                  logger.debug('scaling...')
+                  file_log.debug('scaling...')
                   page.scaleTo(812, 595) 
               else:
-                  logger.debug('merge as is...')
+                  file_log.debug('merge as is...')
             pdf_writer.addPage(page)
 
     with open(output, 'wb') as out:
@@ -123,7 +134,7 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
             height = PDF_SIZES[size]['height']
             width = PDF_SIZES[size]['width']
         except:
-            logger.debug('FAILED to set height and width for PDF render')
+            file_log.debug('FAILED to set height and width for PDF render')
             height = DEFAULT_PDF_HEIGHT
             width = DEFAULT_PDF_WIDTH        
         
@@ -154,7 +165,7 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
 
             time.sleep(delay)
             elapsed += delay
-        logger.debug(f"Render task completed in {elapsed} seconds")
+        logger.info(f"Render task completed in {elapsed} seconds")
 
 @app.post(f'/actions/{slug}/action')
 def action(payload: ActionRequest):
@@ -188,10 +199,10 @@ def action(payload: ActionRequest):
                 for item_id in section.item_order:
                     for item in section.homepage_items:
                         if item.id == str(item_id):
-                            logger.debug(f'items loop, filters: {pformat(filters)}')
+                            file_log.debug(f'items loop, filters: {pformat(filters)}')
                             if item.look_id:
                                 filters = get_filters(sdk, item.look_id)
-                                logger.debug(pformat(filters))
+                                file_log.debug(pformat(filters))
 
                             if item.dashboard_id:
                                 page = {
@@ -209,8 +220,8 @@ def action(payload: ActionRequest):
                                 filters = []
                 report_structure.append(report_section)
 
-    logger.debug('Report Structure:')
-    logger.debug(pformat(report_structure))
+    file_log.debug('Report Structure:')
+    file_log.debug(pformat(report_structure))
 
     pdfs_to_merge = []
     for section in report_structure:
@@ -240,7 +251,7 @@ def action(payload: ActionRequest):
                     filter_map[filter_.dimension] = filter_.name
 
                 for idx, filter_set in enumerate(page['filters']):
-                    logger.debug(f'idx filter_set {idx} {filter_set}')
+                    file_log.debug(f'idx filter_set {idx} {filter_set}')
                     filters = []
                     for dimension, value in filter_set.items():
                         try:
@@ -248,13 +259,13 @@ def action(payload: ActionRequest):
                         except KeyError:
                             logger.debug(f'Ignoring filter value for {dimension} as not present in dashboard filter settings')
                     file_name = get_temp_file_name(slug, page['title'].replace(' ', '_')) + f'_{idx}.pdf'
-                    logger.debug(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
+                    file_log.debug(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
                     rendered = download_dashboard(sdk, page['dashboard_id'], file_name, page_size, page_is_landscape, filters)
                     if rendered:
                       pdfs_to_merge.append((file_name, page_size))
             else:
                 file_name = get_temp_file_name(slug, page['title'].replace(' ', '_')) + '.pdf'
-                logger.debug(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
+                file_log.debug(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
                 download_dashboard(sdk, page['dashboard_id'], file_name, page_size, page_is_landscape)
                 pdfs_to_merge.append((file_name, page_size))
 
