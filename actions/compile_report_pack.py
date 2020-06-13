@@ -141,18 +141,17 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
         while True:
             poll = sdk.render_task(task.id)
             if poll.status == "failure":
-                print(poll)
+                print('render failure:', poll)
                 break
             elif poll.status == "success":
+                result = sdk.render_task_results(task.id)
+                with open(file_name, "wb") as f:
+                    f.write(result)
                 break
 
             time.sleep(delay)
             elapsed += delay
         print(f"Render task completed in {elapsed} seconds")
-
-        result = sdk.render_task_results(task.id)
-        with open(file_name, "wb") as f:
-            f.write(result)
 
 @app.post(f'/actions/{slug}/action')
 def action(payload: ActionRequest):
@@ -231,7 +230,8 @@ def action(payload: ActionRequest):
                     page_is_landscape = DEFAULT_PDF_IS_LANDSCAPE
 
             if page['filters']:
-                dashboard_filters = sdk.dashboard(page['dashboard_id']).dashboard_filters
+                page_dashboard_id = str(page['dashboard_id'])
+                dashboard_filters = sdk.dashboard(page_dashboard_id).dashboard_filters
                 filter_map = {}
                 for filter_ in dashboard_filters:
                     filter_map[filter_.dimension] = filter_.name
@@ -240,7 +240,10 @@ def action(payload: ActionRequest):
                     print(f'idx filter_set {idx} {filter_set}')
                     filters = []
                     for dimension, value in filter_set.items():
-                        filters.append((filter_map[dimension], value))
+                        try:
+                            filters.append((filter_map[dimension], value))
+                        except KeyError:
+                            print('Ignoring filter value for', dimension, 'as not present in dashboard filter settings')
                     file_name = get_temp_file_name(slug, page['title'].replace(' ', '_')) + f'_{idx}.pdf'
                     print(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
                     download_dashboard(sdk, page['dashboard_id'], file_name, page_size, page_is_landscape, filters)
