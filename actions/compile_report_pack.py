@@ -9,17 +9,12 @@ from pprint import pprint
 
 from PyPDF4 import PdfFileReader, PdfFileWriter
 from typing import cast
-# from looker_sdk import methods
+from looker_sdk import models
 from main import app
 from core import action_hub, get_input_file_name, get_output_file_name, get_temp_file_name, get_sdk_for_schedule, get_sdk_all_access, send_email
 from api_types import ActionDefinition, ActionList, ActionRequest, ActionForm, ActionFormField, FormSelectOption 
 
-# TODO: Add ability to handle LookML dashboards
-# TODO: Page size / height & width / pdf params: figure out the right approach
-# TODO: Resolve option dropdowns on action form
 
-DEFAULT_PDF_HEIGHT = 986
-DEFAULT_PDF_WIDTH = 1394
 PDF_SIZES = {
     'A3': {
         'height': 1120,
@@ -31,10 +26,12 @@ PDF_SIZES = {
     }
 }
 DEFAULT_PDF_PAGE_SIZE = 'A4'
+DEFAULT_PDF_HEIGHT = PDF_SIZES[DEFAULT_PDF_PAGE_SIZE]['height']
+DEFAULT_PDF_WIDTH = PDF_SIZES[DEFAULT_PDF_PAGE_SIZE]['width']
 DEFAULT_PDF_IS_LANDSCAPE = True
 USE_SCALING = False
 
-# DURING DEV ONLY
+# DISABLE DURING DEV ONLY
 DOWNLOAD_DASHBOARDS = True
 SEND_EMAIL = True
 
@@ -85,30 +82,10 @@ def form():
             description='Filename for the generated PDF document',
             required=True,
         ),
-        # ActionFormField(
-        #     name='default_size',
-        #     label='Default Page Size',
-        #     description='Default page size where not otherwise specified',
-        #     default='A4',
-        #     options=[
-        #         FormSelectOption(name='A3', label='A3'),
-        #         FormSelectOption(name='A4', label='A4'),
-        #         FormSelectOption(name='Letter', label='Letter'),
-        #     ]
-        # ),
-        # ActionFormField(
-        #     name='default_orientation',
-        #     label='Default Page Orientation',
-        #     description='Default page orientation where not otherwise specified',
-        #     default='landscape',
-        #     options=[
-        #         FormSelectOption(name='landscape', label='Landscape'),
-        #         FormSelectOption(name='portrait', label='Portrait'),
-        #     ]
-        # )
     ]
 
 def merge_pdfs(paths, output):
+    """Combine individually downloaded dashboard files into a compile report. Optionally scales the PDF."""
     pdf_writer = PdfFileWriter()
 
     for path in paths:
@@ -131,7 +108,6 @@ def get_filters(sdk, look_id):
     result = sdk.run_look(look_id, 'json')
     return json.loads(result)
 
-# def download_dashboard(sdk: methods.LookerSDK , dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE, is_landscape=DEFAULT_PDF_IS_LANDSCAPE, filters=[]):
 def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE, is_landscape=DEFAULT_PDF_IS_LANDSCAPE, filters=[]):
     if filters:
         filters = [f'{filter_[0]}={filter_[1]}' for filter_ in filters]
@@ -151,14 +127,12 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
         task = sdk.create_dashboard_render_task(
             dashboard_id= dashboard_id,
             result_format= 'pdf',
-            body= {
-                'dashboard_style': 'tiled',
-                'dashboard_filters': filter_exp,
-            },
+            body= models.CreateDashboardRenderTask(
+                dashboard_style= 'tiled',
+                dashboard_filters= filter_exp,
+            ),
             height= height,
             width= width,
-            # pdf_paper_size= size,
-            # pdf_landscape= is_landscape,    
         )
 
         # poll the render task until it completes
@@ -278,10 +252,9 @@ def action(payload: ActionRequest):
                 pdfs_to_merge.append((file_name, page_size))
 
 
-    report_pack_file = get_output_file_name(slug, cast(str, report_pack.title)) + '.pdf' # TODO: Use board title or form file_name?
+    report_pack_file = get_output_file_name(slug, cast(str, report_pack.title)) + '.pdf'
     if DOWNLOAD_DASHBOARDS:
         merge_pdfs(pdfs_to_merge, report_pack_file) 
-    pprint(pdfs_to_merge)
 
     if SEND_EMAIL:
         response = send_email(
