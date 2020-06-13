@@ -1,0 +1,9 @@
+looker-sdk==0.1.3b14
+fastapi==0.56.0
+python-multipart==0.0.5
+sendgrid==6.3.1
+uvicorn==0.11.5
+gunicorn==20.0.4
+
+# compile_report_pack
+PyPDF4==1.27.0
