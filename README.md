@@ -3,6 +3,8 @@ Single-action Looker Action Hub using Python + FastAPI. Includes SendGrid for em
 
 # User Information
 
+[docs/images/board_example.png](Example Board)
+
 1. Create a board
 2. Add at least two sections
    - The first section must contain a look that includes a `board_id` value in the first row
