@@ -10,7 +10,7 @@ from fastapi import FastAPI
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, Content, Attachment, FileContent, FileName, FileType, Disposition, ContentId
 
-from looker_sdk import client, sdk
+import looker_sdk
 
 
 app = FastAPI(
@@ -130,15 +130,15 @@ def send_email(
 
     return response
 
-def get_sdk_for_schedule(scheduled_plan_id: int) -> sdk.methods.LookerSDK:
-    sdk = client.setup()
+def get_sdk_for_schedule(scheduled_plan_id: int) -> looker_sdk.sdk.api31.methods.Looker31SDK:
+    sdk = looker_sdk.init31()
 
     plan = sdk.scheduled_plan(scheduled_plan_id)
     sdk.login_user(plan.user_id)
 
     return sdk
 
-def get_sdk_all_access() -> sdk.methods.LookerSDK:
-    sdk = client.setup()
+def get_sdk_all_access() -> looker_sdk.sdk.api31.methods.Looker31SDK:
+    sdk = looker_sdk.init31()
 
     return sdk

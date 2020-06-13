@@ -15,12 +15,6 @@ for action in available_actions:
     actions_list.append(definition)
     fast_hub_info['actions'].append(action)
 
-extensions = [module[:-3] for module in os.listdir('extensions') if module[-3:] == '.py']
-for extension in extensions:
-    print(f'Importing Extension: {extension}')
-    endpoint = __import__('.'.join(['extensions', extension]), globals(), locals(), ['endpoint']).endpoint
-    fast_hub_info['extensions'].append(extension)
-
 @app.get('/')
 def root():
     """Simple homepage with JSON response only."""
