@@ -103,7 +103,7 @@ def merge_pdfs(paths, output):
     pdf_writer = PdfFileWriter()
 
     for path in paths:
-        logger.debug(f'path {path[1]} {path[0]}')
+        file_log.debug(f'path {path[1]} {path[0]}')
         pdf_reader = PdfFileReader(path[0])
         for idx in range(pdf_reader.getNumPages()):
             page = pdf_reader.getPage(idx)
@@ -128,7 +128,7 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
         filter_exp = '&'.join(filters)
     else:
         filter_exp = ''
-    logger.debug(f'download_dashboard({dashboard_id}) with filter expression {filter_exp}')
+    file_log.debug(f'download_dashboard({dashboard_id}) with filter expression {filter_exp}')
     if DOWNLOAD_DASHBOARDS:
         try:
             height = PDF_SIZES[size]['height']
@@ -161,12 +161,12 @@ def download_dashboard(sdk, dashboard_id, file_name, size=DEFAULT_PDF_PAGE_SIZE,
                 result = sdk.render_task_results(task.id)
                 with open(file_name, "wb") as f:
                     f.write(result)
+                logger.info(f"Render task completed in {elapsed} seconds")
                 return True
 
             time.sleep(delay)
             elapsed += delay
-        logger.info(f"Render task completed in {elapsed} seconds")
-
+        
 @app.post(f'/actions/{slug}/action')
 def action(payload: ActionRequest):
     """Endpoint for the Compile Report Pack action."""
@@ -257,7 +257,7 @@ def action(payload: ActionRequest):
                         try:
                             filters.append((filter_map[dimension], value))
                         except KeyError:
-                            logger.debug(f'Ignoring filter value for {dimension} as not present in dashboard filter settings')
+                            file_log.debug(f'Ignoring filter value for {dimension} as not present in dashboard filter settings')
                     file_name = get_temp_file_name(slug, page['title'].replace(' ', '_')) + f'_{idx}.pdf'
                     file_log.debug(f'Downloading: {file_name} Size: {page_size} Is Landscape: {page_is_landscape}')
                     rendered = download_dashboard(sdk, page['dashboard_id'], file_name, page_size, page_is_landscape, filters)

@@ -13,7 +13,9 @@ Single-action Looker Action Hub using Python + FastAPI. Includes SendGrid for em
 4. You can add a look which includes filter values, to generate multiple pages of the same dashboard with different filter settings (e.g. one page per department)
 5. Using the section description, you can define a header page to be included
    - These have to be stored on the Action Hub application in the input/compile_report_pack directory
+   - Example: Section Two [cover:section_2.pdf]
 6. Using the section description, you can set pages to be printed as A3 rather than A4
+   - Example: Section Two [cover:section_2.pdf][size:A3]
 
 # Administrator Information
 
