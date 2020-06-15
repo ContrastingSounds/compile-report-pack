@@ -193,7 +193,9 @@ def action(payload: ActionRequest):
                         report_section['cover'] = value
                     if param == 'size':
                         page_sizes = value.split(',')
-
+                logger.info(f'Processing section: {report_section}')
+                logger.info(f'Page sizes config: {page_sizes}')
+                
                 page_num = 0
                 filters = []
                 for item_id in section.item_order:
@@ -213,7 +215,7 @@ def action(payload: ActionRequest):
                                     'filters': filters
                                 }
                                 if page_sizes:
-                                    page['size'] = page_sizes[page_num]
+                                    page['size'] = page_sizes[min(page_num, len(page_sizes)-1)]
                                     page['orientation'] = 'landscape'
                                 report_section['pages'].append(page)
                                 page_num += 1
